@@ -1,0 +1,34 @@
+package com.skillswap.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.skillswap.dto.LoginDTO;
+import com.skillswap.dto.SignUpDTO;
+import com.skillswap.services.UserService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/rest/users")
+@CrossOrigin("*")
+public class UserController {
+	@Autowired
+	private UserService userService;
+	
+	@PostMapping("/signup")
+	public ResponseEntity<Object> signUpUser(@Valid @RequestBody SignUpDTO request){
+		return userService.signUpUser(request);
+	}
+	
+	@PostMapping("/login")
+	public ResponseEntity<Object> loginUser(@Valid @RequestBody LoginDTO request){
+		return userService.loginUser(request);
+	}
+	
+}
