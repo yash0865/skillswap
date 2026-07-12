@@ -82,4 +82,14 @@ public class UserServiceImpl implements UserService{
 		return new ResponseEntity<Object>("Fields Updated", HttpStatus.OK);
 	}
 
+	@Override
+	public ResponseEntity<Object> deleteUser(Long id) {
+		Optional<User> existingUser = userRepository.findById(id);
+		if(!existingUser.isPresent()) {
+			return new ResponseEntity<Object>("User Does Not Exists", HttpStatus.BAD_REQUEST);
+		}
+		userRepository.deleteById(id);
+		return new ResponseEntity<Object>("User Deleted", HttpStatus.OK);
+	}
+
 }

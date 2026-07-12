@@ -16,4 +16,6 @@ public interface UserService {
 
 	ResponseEntity<Object> updateUser(Long id, UpdateDTO request);
 
+	ResponseEntity<Object> deleteUser(Long id);
+
 }
