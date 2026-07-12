@@ -20,8 +20,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // Disabled for stateless APIs
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/rest/users/signup").permitAll() // Let anyone register
-                .requestMatchers("/rest/users/login").permitAll()
+                .requestMatchers("/rest/users/**").permitAll() 
                 .anyRequest().authenticated()
             );
         return http.build();

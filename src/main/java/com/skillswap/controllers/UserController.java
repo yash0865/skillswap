@@ -10,9 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.skillswap.dto.LoginDTO;
 import com.skillswap.dto.SignUpDTO;
+import com.skillswap.dto.UpdateDTO;
 import com.skillswap.services.UserService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("/rest/users")
@@ -31,4 +35,8 @@ public class UserController {
 		return userService.loginUser(request);
 	}
 	
+	@PutMapping("/update/{id}")
+	public ResponseEntity<Object> updateUser(@PathVariable("id") Long id, @RequestBody UpdateDTO request) {
+		return userService.updateUser(id,request);
+	}
 }

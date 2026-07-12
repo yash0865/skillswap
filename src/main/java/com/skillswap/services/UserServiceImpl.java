@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.skillswap.config.SecurityConfig;
 import com.skillswap.dto.LoginDTO;
 import com.skillswap.dto.SignUpDTO;
+import com.skillswap.dto.UpdateDTO;
 import com.skillswap.entity.User;
 import com.skillswap.repository.UserRepository;
 
@@ -56,6 +57,29 @@ public class UserServiceImpl implements UserService{
 		}
 		
 		return new ResponseEntity<Object>("Login Successfull", HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<Object> updateUser(Long id, UpdateDTO request) {
+		Optional<User> existingUser = userRepository.findById(id);
+		if(!existingUser.isPresent()) {
+			return new ResponseEntity<Object>("User Does Not Exists", HttpStatus.BAD_REQUEST);
+		}
+		User user = existingUser.get();
+		if(request.getName()!= null && !user.getName().equals(request.getName())) {
+			user.setName(request.getName());
+		}
+		if(request.getEmail() != null && !user.getEmail().equals(request.getEmail())) {
+			user.setEmail(request.getEmail());
+		}
+		if(request.getBio() != null && !user.getBio().equals(request.getBio())) {
+			user.setBio(request.getBio());
+		}
+		if(request.getPassword() != null && !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
+			user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
+		}
+		userRepository.save(user);
+		return new ResponseEntity<Object>("Fields Updated", HttpStatus.OK);
 	}
 
 }
