@@ -5,6 +5,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.skillswap.config.SecurityConfig;
@@ -17,22 +21,25 @@ import com.skillswap.repository.UserRepository;
 import jakarta.validation.Valid;
 
 @Service
-public class UserServiceImpl implements UserService{
-	
+public class UserServiceImpl implements UserService {
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private SecurityConfig securityConfig;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
 
 	@Override
 	public ResponseEntity<Object> signUpUser(SignUpDTO request) {
 		Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
-		
-		if(existingUser.isPresent()) {
+
+		if (existingUser.isPresent()) {
 			return new ResponseEntity<Object>("Email Already Exists", HttpStatus.BAD_REQUEST);
 		}
-		
+
 		User user = new User();
 		user.setEmail(request.getEmail());
 		user.setBio(request.getBio());
@@ -44,38 +51,38 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public ResponseEntity<Object> loginUser(@Valid LoginDTO request) {
-		Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
-		
-		if(!existingUser.isPresent()) {
-			return new ResponseEntity<Object>("Email Not Exists", HttpStatus.BAD_REQUEST);
+
+		try {
+
+			Authentication authentication = authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+			return ResponseEntity.ok("Login Successful");
+
+		} catch (BadCredentialsException e) {
+
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Email or Password");
 		}
-		
-		User user = existingUser.get();
-		
-		if(!securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
-			return new ResponseEntity<Object>("Incorrect Password", HttpStatus.BAD_REQUEST);
-		}
-		
-		return new ResponseEntity<Object>("Login Successfull", HttpStatus.OK);
 	}
 
 	@Override
 	public ResponseEntity<Object> updateUser(Long id, UpdateDTO request) {
 		Optional<User> existingUser = userRepository.findById(id);
-		if(!existingUser.isPresent()) {
+		if (!existingUser.isPresent()) {
 			return new ResponseEntity<Object>("User Does Not Exists", HttpStatus.BAD_REQUEST);
 		}
 		User user = existingUser.get();
-		if(request.getName()!= null && !user.getName().equals(request.getName())) {
+		if (request.getName() != null && !user.getName().equals(request.getName())) {
 			user.setName(request.getName());
 		}
-		if(request.getEmail() != null && !user.getEmail().equals(request.getEmail())) {
+		if (request.getEmail() != null && !user.getEmail().equals(request.getEmail())) {
 			user.setEmail(request.getEmail());
 		}
-		if(request.getBio() != null && !user.getBio().equals(request.getBio())) {
+		if (request.getBio() != null && !user.getBio().equals(request.getBio())) {
 			user.setBio(request.getBio());
 		}
-		if(request.getPassword() != null && !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
+		if (request.getPassword() != null
+				&& !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
 			user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
 		}
 		userRepository.save(user);
@@ -85,7 +92,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public ResponseEntity<Object> deleteUser(Long id) {
 		Optional<User> existingUser = userRepository.findById(id);
-		if(!existingUser.isPresent()) {
+		if (!existingUser.isPresent()) {
 			return new ResponseEntity<Object>("User Does Not Exists", HttpStatus.BAD_REQUEST);
 		}
 		userRepository.deleteById(id);
