@@ -9,14 +9,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.skillswap.config.SecurityConfig;
 import com.skillswap.dto.LoginDTO;
+import com.skillswap.dto.LoginResponse;
 import com.skillswap.dto.SignUpDTO;
 import com.skillswap.dto.UpdateDTO;
 import com.skillswap.entity.User;
 import com.skillswap.repository.UserRepository;
+import com.skillswap.security.CustomUserDetails;
+import com.skillswap.security.CustomUserDetailsService;
+import com.skillswap.security.JWTService;
 
 import jakarta.validation.Valid;
 
@@ -27,7 +32,7 @@ public class UserServiceImpl implements UserService {
 	private UserRepository userRepository;
 
 	@Autowired
-	private SecurityConfig securityConfig;
+	private JWTService jwtService;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -44,7 +49,7 @@ public class UserServiceImpl implements UserService {
 		user.setEmail(request.getEmail());
 		user.setBio(request.getBio());
 		user.setName(request.getName());
-		user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
+//		user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
 		userRepository.save(user);
 		return new ResponseEntity<>("Signup successfull", HttpStatus.CREATED);
 	}
@@ -56,8 +61,12 @@ public class UserServiceImpl implements UserService {
 
 			Authentication authentication = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+			
+			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+			
+			String token = jwtService.generateToken(userDetails);
 
-			return ResponseEntity.ok("Login Successful");
+			return ResponseEntity.ok(new LoginResponse(token, "Bearer"));
 
 		} catch (BadCredentialsException e) {
 
@@ -81,10 +90,10 @@ public class UserServiceImpl implements UserService {
 		if (request.getBio() != null && !user.getBio().equals(request.getBio())) {
 			user.setBio(request.getBio());
 		}
-		if (request.getPassword() != null
-				&& !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
-			user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
-		}
+//		if (request.getPassword() != null
+//				&& !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
+//			user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
+//		}
 		userRepository.save(user);
 		return new ResponseEntity<Object>("Fields Updated", HttpStatus.OK);
 	}
