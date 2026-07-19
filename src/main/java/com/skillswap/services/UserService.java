@@ -18,4 +18,6 @@ public interface UserService {
 
 	ResponseEntity<Object> deleteUser(Long id);
 
+	ResponseEntity<Object> getUserProfile();
+
 }

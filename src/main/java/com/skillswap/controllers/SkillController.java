@@ -33,9 +33,9 @@ public class SkillController {
 		return skillService.getAllSkills();
 	}
 	
-	@PostMapping("/user/{id}")
-	public ResponseEntity<Object> addUserSkill(@PathVariable("id") Long id, @RequestBody SkillDTO request){
-		return skillService.addUserSkill(id, request);
+	@PostMapping("/user")
+	public ResponseEntity<Object> addUserSkill(@RequestBody SkillDTO request){
+		return skillService.addUserSkill(request);
 	}
 	
 	@GetMapping("/user/{id}")
@@ -43,8 +43,8 @@ public class SkillController {
 		return skillService.getUserSkill(id);
 	}
 	
-	@DeleteMapping("/user/{id}")
-	public ResponseEntity<Object> deleteSkill(@PathVariable("id") Long id, @RequestBody SkillDTO request){
-		return skillService.deleteUserSkill(id, request);
+	@DeleteMapping("/user")
+	public ResponseEntity<Object> deleteSkill(@RequestBody SkillDTO request){
+		return skillService.deleteUserSkill(request);
 	}
 }

@@ -1,5 +1,7 @@
 package com.skillswap.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +21,9 @@ public class User {
 	private String name;
 	
 	@Column
+	private String location;
+	
+	@Column
 	@Email
 	private String email;
 	
@@ -27,6 +32,9 @@ public class User {
 	
 	@Column
 	private String bio;
+	
+	@Column
+	private Date joinedDate;
 
 	public String getName() {
 		return name;
@@ -58,6 +66,30 @@ public class User {
 
 	public void setBio(String bio) {
 		this.bio = bio;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public Date getJoinedDate() {
+		return joinedDate;
+	}
+
+	public void setJoinedDate(Date joinedDate) {
+		this.joinedDate = joinedDate;
 	}
 	
 	

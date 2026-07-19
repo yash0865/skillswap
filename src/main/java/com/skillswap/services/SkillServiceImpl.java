@@ -6,7 +6,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.skillswap.dto.SkillDTO;
@@ -17,6 +20,7 @@ import com.skillswap.entity.UserSkill;
 import com.skillswap.repository.SkillRepository;
 import com.skillswap.repository.UserRepository;
 import com.skillswap.repository.UserSkillRepository;
+import com.skillswap.security.CustomUserDetails;
 import com.skillswap.utils.SkillType;
 
 import jakarta.validation.Valid;
@@ -40,9 +44,9 @@ public class SkillServiceImpl implements SkillService {
 			return new ResponseEntity<Object>("Skill Already Exists", HttpStatus.OK);
 		}
 		
-		Skill newSkill = new Skill();
-		newSkill.setName(request.getName());
-		skillRepo.save(newSkill);
+//		Skill newSkill = new Skill();
+//		newSkill.setName(request.getName());
+//		skillRepo.save(newSkill);
 		return new ResponseEntity<Object>("New Skill Added", HttpStatus.OK);
 	}
 
@@ -75,22 +79,29 @@ public class SkillServiceImpl implements SkillService {
 	}
 
 	@Override
-	public ResponseEntity<Object> addUserSkill(Long id, SkillDTO request) {
-		Optional<User> user = userRepo.findById(id);
-		Optional<Skill> skill = skillRepo.findByNameIgnoreCase(request.getName());
+	public ResponseEntity<Object> addUserSkill(SkillDTO request) {
+		Authentication authentication = SecurityContextHolder
+		        .getContext()
+		        .getAuthentication();
+
+		CustomUserDetails userDetails =
+		        (CustomUserDetails) authentication.getPrincipal();
 		
-		if(!user.isPresent()) {
-			return new ResponseEntity<Object>("User not exists", HttpStatus.BAD_REQUEST);
-		}
+		User user = userDetails.getUser();
 		
-		if(!skill.isPresent()) {
-			return new ResponseEntity<Object>("Skill does not exists", HttpStatus.BAD_REQUEST);
+		Optional<Skill> optionalSkill = skillRepo.findByNameIgnoreCase(request.getName());
+		Skill skill = null;
+		if(optionalSkill.isPresent()) {
+			skill = optionalSkill.get();
+		}else {
+			skill = new Skill(request.getName());
+			skillRepo.save(skill);
 		}
 		
 		UserSkill newUserSkill = new UserSkill();
-		newUserSkill.setSkill(skill.get());
-		newUserSkill.setUser(user.get());
-		if(request.getType().equalsIgnoreCase("TEACH")) {
+		newUserSkill.setSkill(skill);
+		newUserSkill.setUser(user);
+		if(request.getType().equals(SkillType.TEACH)) {
 			newUserSkill.setType(SkillType.TEACH);
 		}else {
 			newUserSkill.setType(SkillType.LEARN);
@@ -101,25 +112,25 @@ public class SkillServiceImpl implements SkillService {
 	}
 
 	@Override
-	public ResponseEntity<Object> deleteUserSkill(Long id, SkillDTO request) {
-		Optional<User> user = userRepo.findById(id);
-		Optional<Skill> skill = skillRepo.findByNameIgnoreCase(request.getName());
+	public ResponseEntity<Object> deleteUserSkill(SkillDTO request) {
+		Authentication authentication = SecurityContextHolder
+		        .getContext()
+		        .getAuthentication();
+
+		CustomUserDetails userDetails =
+		        (CustomUserDetails) authentication.getPrincipal();
 		
-		if(!user.isPresent()) {
-			return new ResponseEntity<Object>("User not exists", HttpStatus.BAD_REQUEST);
+		User user = userDetails.getUser();
+		
+		Optional<UserSkill> optionSkill = userSkillRepo.findByUserIdAndSkillName(user.getId(), request.getName());
+		
+		if(!optionSkill.isPresent()) {
+			return new ResponseEntity<Object>("Skill does not exist", HttpStatus.BAD_REQUEST);
 		}
 		
-		if(!skill.isPresent()) {
-			return new ResponseEntity<Object>("Skill does not exists", HttpStatus.BAD_REQUEST);
-		}
+		userSkillRepo.delete(optionSkill.get());
 		
-		Optional<UserSkill> userSkill = userSkillRepo.findByUserAndSkill(user, skill);	
-		if(!userSkill.isPresent()) {
-			return new ResponseEntity<Object>("User Skill does not exists", HttpStatus.BAD_REQUEST);
-		}
-		
-		userSkillRepo.delete(userSkill.get());
-		return new ResponseEntity<Object>("User Skill Deleted", HttpStatus.OK);
+		return new ResponseEntity<Object>("Skill delted", HttpStatus.OK);
 	}
 
 }

@@ -14,8 +14,8 @@ public interface SkillService {
 
 	ResponseEntity<Object> getUserSkill(Long id);
 
-	ResponseEntity<Object> addUserSkill(Long id, SkillDTO request);
+	ResponseEntity<Object> deleteUserSkill(SkillDTO request);
 
-	ResponseEntity<Object> deleteUserSkill(Long id, SkillDTO request);
+	ResponseEntity<Object> addUserSkill(SkillDTO request);
 
 }

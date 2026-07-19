@@ -17,6 +17,14 @@ public class Skill {
 	@Column
 	private String name;
 
+	public Skill(String name) {
+		this.name = name;
+	}
+
+	public Skill() {
+		super();
+	}
+
 	public String getName() {
 		return name;
 	}
