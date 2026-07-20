@@ -16,9 +16,11 @@ public class ProfileResponse {
 	private List<Review> userReviews;
 	private List<Session> userSessions;
 	private Date memberSince;
+	private String linkedInURL;
+	private String portfolio;
 	
 	public ProfileResponse(String userName, String userBio, String userLocation, List<SkillDTO> skills,
-			List<Review> userReviews, List<Session> userSessions, Date memberSince) {
+			List<Review> userReviews, List<Session> userSessions, Date memberSince, String linkedInURL, String portfolio) {
 		super();
 		this.userName = userName;
 		this.userBio = userBio;
@@ -27,6 +29,8 @@ public class ProfileResponse {
 		this.userReviews = userReviews;
 		this.userSessions = userSessions;
 		this.memberSince = memberSince;
+		this.linkedInURL = linkedInURL;
+		this.portfolio = portfolio;
 	}
 	public String getUserName() {
 		return userName;
@@ -69,6 +73,18 @@ public class ProfileResponse {
 	}
 	public void setMemberSince(Date memberSince) {
 		this.memberSince = memberSince;
+	}
+	public String getLinkedInURL() {
+		return linkedInURL;
+	}
+	public void setLinkedInURL(String linkedInURL) {
+		this.linkedInURL = linkedInURL;
+	}
+	public String getPortfolio() {
+		return portfolio;
+	}
+	public void setPortfolio(String portfolio) {
+		this.portfolio = portfolio;
 	}
 	
 	

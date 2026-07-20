@@ -35,6 +35,12 @@ public class User {
 	
 	@Column
 	private Date joinedDate;
+	
+	@Column
+	private String linkedInURL;
+	
+	@Column
+	private String portfolio;
 
 	public String getName() {
 		return name;
@@ -90,6 +96,22 @@ public class User {
 
 	public void setJoinedDate(Date joinedDate) {
 		this.joinedDate = joinedDate;
+	}
+
+	public String getLinkedInURL() {
+		return linkedInURL;
+	}
+
+	public void setLinkedInURL(String linkedInURL) {
+		this.linkedInURL = linkedInURL;
+	}
+
+	public String getPortfolio() {
+		return portfolio;
+	}
+
+	public void setPortfolio(String portfolio) {
+		this.portfolio = portfolio;
 	}
 	
 	

@@ -123,27 +123,47 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public ResponseEntity<Object> updateUser(Long id, UpdateDTO request) {
-		Optional<User> existingUser = userRepository.findById(id);
-		if (!existingUser.isPresent()) {
-			return new ResponseEntity<Object>("User Does Not Exists", HttpStatus.BAD_REQUEST);
+	public ResponseEntity<Object> updateUser(UpdateDTO request) {
+		try {
+			Authentication authentication = SecurityContextHolder
+			        .getContext()
+			        .getAuthentication();
+
+			CustomUserDetails userDetails =
+			        (CustomUserDetails) authentication.getPrincipal();
+			
+			User user = userDetails.getUser();
+			
+			if (request.getName() != null && !request.getName().equals(user.getName())) {
+				user.setName(request.getName());
+			}
+			if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+				user.setEmail(request.getEmail());
+			}
+			if (request.getBio() != null && !request.getBio().equals(user.getBio())) {
+				user.setBio(request.getBio());
+			}
+			if (request.getLocation() != null && !request.getLocation().equals(user.getLocation())) {
+				user.setLocation(request.getLocation());
+			}
+			if (request.getLinkedInURL() != null && !request.getLinkedInURL().equals(user.getLinkedInURL())) {
+				user.setLinkedInURL(request.getLinkedInURL());
+			}
+			if (request.getPortfolio() != null && !request.getPortfolio().equals(user.getPortfolio())) {
+				user.setPortfolio(request.getPortfolio());
+			}
+			
+//			if (request.getPassword() != null
+//					&& !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
+//				user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
+//			}
+			userRepository.save(user);
+			return new ResponseEntity<Object>("Fields Updated", HttpStatus.OK);
+			
+		}catch(Exception e) {
+			return new ResponseEntity<Object>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		User user = existingUser.get();
-		if (request.getName() != null && !user.getName().equals(request.getName())) {
-			user.setName(request.getName());
-		}
-		if (request.getEmail() != null && !user.getEmail().equals(request.getEmail())) {
-			user.setEmail(request.getEmail());
-		}
-		if (request.getBio() != null && !user.getBio().equals(request.getBio())) {
-			user.setBio(request.getBio());
-		}
-//		if (request.getPassword() != null
-//				&& !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
-//			user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
-//		}
-		userRepository.save(user);
-		return new ResponseEntity<Object>("Fields Updated", HttpStatus.OK);
+		
 	}
 
 	@Override
@@ -178,7 +198,17 @@ public class UserServiceImpl implements UserService {
 			
 			List<Session> sessions = new ArrayList<>();
 			
-			return ResponseEntity.ok(new ProfileResponse(user.getName(), user.getBio(), user.getLocation(), skills, reviews, sessions, user.getJoinedDate()));
+			return ResponseEntity.ok(new ProfileResponse(
+					user.getName(), 
+					user.getBio(), 
+					user.getLocation(), 
+					skills, 
+					reviews, 
+					sessions, 
+					user.getJoinedDate(),
+					user.getLinkedInURL(),
+					user.getPortfolio()
+					));
 			
 		}catch (Exception e) {
 			return new ResponseEntity<Object>("Something went wrong! Please try again", HttpStatus.INTERNAL_SERVER_ERROR);

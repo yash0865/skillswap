@@ -13,8 +13,14 @@ public class UpdateDTO {
     @Size(min = 8, max = 16, message = "Password must be between 10 and 50 characters")
     private String password;
     
-    @Size(min = 10, max = 50, message = "Bio must be between 10 and 50 characters")
+    @Size(min = 10, max = 200, message = "Bio must be between 10 and 50 characters")
     private String bio;
+    
+    private String location;
+    
+    private String linkedInURL;
+    
+    private String portfolio;
 
 	public String getName() {
 		return name;
@@ -46,6 +52,30 @@ public class UpdateDTO {
 
 	public void setBio(String bio) {
 		this.bio = bio;
+	}
+
+	public String getLinkedInURL() {
+		return linkedInURL;
+	}
+
+	public void setLinkedInURL(String linkedInURL) {
+		this.linkedInURL = linkedInURL;
+	}
+
+	public String getPortfolio() {
+		return portfolio;
+	}
+
+	public void setPortfolio(String portfolio) {
+		this.portfolio = portfolio;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
     
     
