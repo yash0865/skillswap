@@ -55,6 +55,24 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserSkillRepository userSkillRepository;
+	
+	private User getUserFromContext() {
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+	    if (authentication == null || !authentication.isAuthenticated()) {
+	        throw new RuntimeException("No authenticated user found in security context");
+	    }
+
+	    Object principal = authentication.getPrincipal();
+
+	    if (principal instanceof CustomUserDetails userDetails) {
+	        // Option A: Fetch fresh entity from DB (Recommended for update/delete operations)
+	        return userRepository.findById(userDetails.getUser().getId())
+	                .orElseThrow(() -> new RuntimeException("User not found in database"));
+	    }
+
+	    throw new IllegalStateException("Unexpected principal type in SecurityContext: " + principal.getClass().getName());
+	}
 
 	@Override
 	public ResponseEntity<Object> signUpUser(SignUpDTO request) {
@@ -125,14 +143,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public ResponseEntity<Object> updateUser(UpdateDTO request) {
 		try {
-			Authentication authentication = SecurityContextHolder
-			        .getContext()
-			        .getAuthentication();
-
-			CustomUserDetails userDetails =
-			        (CustomUserDetails) authentication.getPrincipal();
 			
-			User user = userDetails.getUser();
+			User user = getUserFromContext();
 			
 			if (request.getName() != null && !request.getName().equals(user.getName())) {
 				user.setName(request.getName());
@@ -153,12 +165,8 @@ public class UserServiceImpl implements UserService {
 				user.setPortfolio(request.getPortfolio());
 			}
 			
-//			if (request.getPassword() != null
-//					&& !securityConfig.passwordEncoder().matches(request.getPassword(), user.getPassword())) {
-//				user.setPassword(securityConfig.passwordEncoder().encode(request.getPassword()));
-//			}
 			userRepository.save(user);
-			return new ResponseEntity<Object>("Fields Updated", HttpStatus.OK);
+			return new ResponseEntity<Object>("Profile Updated", HttpStatus.OK);
 			
 		}catch(Exception e) {
 			return new ResponseEntity<Object>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -179,14 +187,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public ResponseEntity<Object> getUserProfile() {
 		try {
-			Authentication authentication = SecurityContextHolder
-			        .getContext()
-			        .getAuthentication();
-
-			CustomUserDetails userDetails =
-			        (CustomUserDetails) authentication.getPrincipal();
-			
-			User user = userDetails.getUser();
+			User user = getUserFromContext();
 			
 			List<UserSkill> userSkills = userSkillRepository.findByUserId(user.getId());
 			List<SkillDTO> skills = new ArrayList<>();

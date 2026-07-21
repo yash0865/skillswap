@@ -2,7 +2,6 @@ package com.skillswap.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +17,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/rest/skills")
-@CrossOrigin("*")
 public class SkillController {
 	@Autowired
 	private SkillService skillService;
