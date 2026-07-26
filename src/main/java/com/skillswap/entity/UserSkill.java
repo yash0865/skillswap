@@ -27,6 +27,16 @@ public class UserSkill {
 	@Enumerated(EnumType.STRING)
 	private SkillType type;
 
+	public UserSkill(Skill skill, User user, SkillType learn) {
+		this.skill = skill;
+		this.user = user;
+		this.type = learn;
+	}
+
+	public UserSkill() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public User getUser() {
 		return user;
 	}

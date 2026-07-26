@@ -6,4 +6,6 @@ public interface BrowseSkillsService {
 
 	ResponseEntity<Object> getBroseSkillData();
 
+	ResponseEntity<Object> getProfileDetails(Long id);
+
 }
