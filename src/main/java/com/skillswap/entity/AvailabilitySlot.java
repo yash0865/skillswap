@@ -20,16 +20,16 @@ public class AvailabilitySlot {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private DayOfWeek dayOfWeek; // MONDAY, TUESDAY, etc.
+    private DayOfWeek day; // MONDAY, TUESDAY, etc.
 
     private LocalTime startTime;
     private LocalTime endTime;
     
 	public DayOfWeek getDayOfWeek() {
-		return dayOfWeek;
+		return day;
 	}
 	public void setDayOfWeek(DayOfWeek dayOfWeek) {
-		this.dayOfWeek = dayOfWeek;
+		this.day = dayOfWeek;
 	}
 	public LocalTime getStartTime() {
 		return startTime;

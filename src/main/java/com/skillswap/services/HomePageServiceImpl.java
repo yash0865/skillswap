@@ -102,7 +102,7 @@ public class HomePageServiceImpl implements HomePageService {
 		List<AvailabilitySlot> availableSlots = new ArrayList<>();
 		for(AvailabilitySlotDto slot : req.getAvailability()) {
 			AvailabilitySlot availability = new AvailabilitySlot();
-			availability.setDayOfWeek(slot.getDayOfWeek());
+			availability.setDayOfWeek(slot.getDay());
 			availability.setStartTime(slot.getStartTime());
 			availability.setEndTime(slot.getEndTime());
 			availabilitySlotRepo.save(availability);
