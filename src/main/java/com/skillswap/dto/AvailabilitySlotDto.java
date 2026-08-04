@@ -8,7 +8,13 @@ public class AvailabilitySlotDto {
     private LocalTime startTime; // e.g., 17:00 or 16:30
     private LocalTime endTime;   // e.g., 18:00 or 19:30
 
-    // Getters and Setters
+    public AvailabilitySlotDto(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+		// TODO Auto-generated constructor stub
+    	this.day = dayOfWeek;
+    	this.startTime = startTime;
+    	this.endTime = endTime;
+	}
+	// Getters and Setters
     public DayOfWeek getDay() { return day; }
 	public void setDay(DayOfWeek day) { this.day = day; }
 

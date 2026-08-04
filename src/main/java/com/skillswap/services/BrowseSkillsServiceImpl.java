@@ -2,10 +2,13 @@ package com.skillswap.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.random.RandomGenerator;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,13 +17,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.skillswap.dto.AvailabilitySlotDto;
 import com.skillswap.dto.BrowseSkillResponse;
 import com.skillswap.dto.ProfileResponse;
 import com.skillswap.dto.SkillDTO;
+import com.skillswap.entity.AvailabilitySlot;
 import com.skillswap.entity.Review;
 import com.skillswap.entity.Session;
 import com.skillswap.entity.User;
 import com.skillswap.entity.UserSkill;
+import com.skillswap.repository.AvailabilitySlotRepo;
 import com.skillswap.repository.SkillRepository;
 import com.skillswap.repository.UserRepository;
 import com.skillswap.repository.UserSkillRepository;
@@ -34,6 +40,9 @@ public class BrowseSkillsServiceImpl implements BrowseSkillsService{
 	
 	@Autowired
 	private UserSkillRepository userSkillRepository;
+	
+	@Autowired
+	private AvailabilitySlotRepo availabilitySlotRepo;
 	
 	private User getUserFromContext() {
 	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -86,12 +95,22 @@ public class BrowseSkillsServiceImpl implements BrowseSkillsService{
 
 	@Override
 	public ResponseEntity<Object> getProfileDetails(Long id) {
-		User user = getUserFromContext();
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 		
 		List<UserSkill> userSkills = userSkillRepository.findByUserId(user.getId());
 		List<SkillDTO> skills = new ArrayList<>();
 		for(UserSkill skill : userSkills) {
 			skills.add(new SkillDTO(skill.getSkill().getName(), skill.getType()));
+		}
+		
+		Set<AvailabilitySlot> slotDTOs = availabilitySlotRepo.findByUser_Id(user.getId());
+		Set<AvailabilitySlotDto> availability = new HashSet<>();
+		if(slotDTOs != null && !slotDTOs.isEmpty()) {
+			availability = slotDTOs
+					.stream()
+					.map(slot -> new AvailabilitySlotDto(slot.getDay(), slot.getStartTime(), slot.getEndTime()))
+					.collect(Collectors.toSet());
 		}
 					
 		List<Review> reviews = new ArrayList<>();
@@ -105,8 +124,9 @@ public class BrowseSkillsServiceImpl implements BrowseSkillsService{
 				skills, 
 				reviews, 
 				sessions, 
+				availability,
 				user.getJoinedDate(),
-				user.getLinkedInURL(),
+				user.getLinkedinUrl(),
 				user.getPortfolio()
 				));
 	}

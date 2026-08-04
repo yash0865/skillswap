@@ -1,6 +1,8 @@
 package com.skillswap.services;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,21 +16,27 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import com.skillswap.config.SecurityConfig;
+import com.skillswap.dto.AvailabilitySlotDto;
 import com.skillswap.dto.LoginDTO;
 import com.skillswap.dto.LoginResponse;
 import com.skillswap.dto.ProfileResponse;
 import com.skillswap.dto.SignUpDTO;
 import com.skillswap.dto.SkillDTO;
 import com.skillswap.dto.UpdateDTO;
+import com.skillswap.entity.AvailabilitySlot;
 import com.skillswap.entity.Review;
 import com.skillswap.entity.Session;
 import com.skillswap.entity.User;
 import com.skillswap.entity.UserSkill;
+import com.skillswap.repository.AvailabilitySlotRepo;
 import com.skillswap.repository.UserRepository;
 import com.skillswap.repository.UserSkillRepository;
 import com.skillswap.security.CustomUserDetails;
@@ -55,6 +63,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UserSkillRepository userSkillRepository;
+	
+	@Autowired
+	private AvailabilitySlotRepo availabilitySlotRepo;
 	
 	private User getUserFromContext() {
 	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -92,7 +103,7 @@ public class UserServiceImpl implements UserService {
 
 		    // Encode password
 		    user.setPassword(passwordEncoder.encode(request.getPassword()));
-		    user.setJoinedDate(new Date());
+		    user.setJoinedDate(LocalDate.now());
 
 		    userRepository.save(user);
 
@@ -158,8 +169,8 @@ public class UserServiceImpl implements UserService {
 			if (request.getLocation() != null && !request.getLocation().equals(user.getLocation())) {
 				user.setLocation(request.getLocation());
 			}
-			if (request.getLinkedInURL() != null && !request.getLinkedInURL().equals(user.getLinkedInURL())) {
-				user.setLinkedInURL(request.getLinkedInURL());
+			if (request.getLinkedInURL() != null && !request.getLinkedInURL().equals(user.getLinkedinUrl())) {
+				user.setLinkedinUrl(request.getLinkedInURL());
 			}
 			if (request.getPortfolio() != null && !request.getPortfolio().equals(user.getPortfolio())) {
 				user.setPortfolio(request.getPortfolio());
@@ -199,6 +210,15 @@ public class UserServiceImpl implements UserService {
 			
 			List<Session> sessions = new ArrayList<>();
 			
+			Set<AvailabilitySlot> slotDTOs = availabilitySlotRepo.findByUser_Id(user.getId());
+			Set<AvailabilitySlotDto> availability = new HashSet<>();
+			if(slotDTOs != null && !slotDTOs.isEmpty()) {
+				availability = slotDTOs
+						.stream()
+						.map(slot -> new AvailabilitySlotDto(slot.getDay(), slot.getStartTime(), slot.getEndTime()))
+						.collect(Collectors.toSet());
+			}
+			
 			return ResponseEntity.ok(new ProfileResponse(
 					user.getName(), 
 					user.getBio(), 
@@ -206,8 +226,9 @@ public class UserServiceImpl implements UserService {
 					skills, 
 					reviews, 
 					sessions, 
+					availability,
 					user.getJoinedDate(),
-					user.getLinkedInURL(),
+					user.getLinkedinUrl(),
 					user.getPortfolio()
 					));
 			

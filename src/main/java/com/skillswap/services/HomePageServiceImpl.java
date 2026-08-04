@@ -3,8 +3,10 @@ package com.skillswap.services;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalField;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -75,7 +77,7 @@ public class HomePageServiceImpl implements HomePageService {
 			browseSkillResponse.setId(us.getUser().getId());
 			browseSkillResponse.setName(us.getUser().getName());
 			browseSkillResponse.setRating(5);
-			browseSkillResponse.setImageURL(us.getUser().getLinkedInURL());
+			browseSkillResponse.setImageURL(us.getUser().getLinkedinUrl());
 			browseSkillResponse.setLocation(us.getUser().getLocation());
 			
 			List<SkillDTO> skills = userSkillRepository.findByUser(us.getUser())
@@ -94,15 +96,16 @@ public class HomePageServiceImpl implements HomePageService {
 		User user = getUserFromContext();
 		user.setLocation(req.getLocation());
 		user.setBio(req.getBio());
-		user.setLinkedInURL(req.getLinkedin());
+		user.setLinkedinUrl(req.getLinkedin());
 		user.setPortfolio(req.getPortfolio());
 		user.setOccupation(req.getOccupation());
-		user.setPhotoURL(req.getProfilePhotoUrl());
+		user.setPhotoUrl(req.getProfilePhotoUrl());
 		
-		List<AvailabilitySlot> availableSlots = new ArrayList<>();
+		Set<AvailabilitySlot> availableSlots = new HashSet<>();
 		for(AvailabilitySlotDto slot : req.getAvailability()) {
 			AvailabilitySlot availability = new AvailabilitySlot();
-			availability.setDayOfWeek(slot.getDay());
+			availability.setUser(user);
+			availability.setDay(slot.getDay());
 			availability.setStartTime(slot.getStartTime());
 			availability.setEndTime(slot.getEndTime());
 			availabilitySlotRepo.save(availability);
@@ -122,7 +125,7 @@ public class HomePageServiceImpl implements HomePageService {
 			userSkillRepository.save(userSkill);
 		}
 		
-		user.setAvailableSlots(availableSlots);
+		user.setAvailabilitySlots(availableSlots);
 		user.setSessionMode(req.getMode());
 		userRepository.save(user);
 		return new ResponseEntity<Object>("User Details Saved", HttpStatus.OK);

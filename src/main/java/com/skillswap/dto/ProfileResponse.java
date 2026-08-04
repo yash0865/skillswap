@@ -1,8 +1,13 @@
 package com.skillswap.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import org.springframework.cglib.core.Local;
+
+import com.skillswap.entity.AvailabilitySlot;
 import com.skillswap.entity.Review;
 import com.skillswap.entity.Session;
 import com.skillswap.entity.Skill;
@@ -15,12 +20,13 @@ public class ProfileResponse {
 	private List<SkillDTO> skills;
 	private List<Review> userReviews;
 	private List<Session> userSessions;
-	private Date memberSince;
+	private LocalDate memberSince;
 	private String linkedInURL;
 	private String portfolio;
+	Set<AvailabilitySlotDto> availability;
 	
 	public ProfileResponse(String userName, String userBio, String userLocation, List<SkillDTO> skills,
-			List<Review> userReviews, List<Session> userSessions, Date memberSince, String linkedInURL, String portfolio) {
+			List<Review> userReviews, List<Session> userSessions, Set<AvailabilitySlotDto> availability, LocalDate localDate, String linkedInURL, String portfolio) {
 		super();
 		this.userName = userName;
 		this.userBio = userBio;
@@ -28,9 +34,10 @@ public class ProfileResponse {
 		this.skills = skills;
 		this.userReviews = userReviews;
 		this.userSessions = userSessions;
-		this.memberSince = memberSince;
+		this.memberSince = localDate;
 		this.linkedInURL = linkedInURL;
 		this.portfolio = portfolio;
+		this.availability = availability;
 	}
 	public String getUserName() {
 		return userName;
@@ -68,10 +75,10 @@ public class ProfileResponse {
 	public void setUserSessions(List<Session> userSessions) {
 		this.userSessions = userSessions;
 	}
-	public Date getMemberSince() {
+	public LocalDate getMemberSince() {
 		return memberSince;
 	}
-	public void setMemberSince(Date memberSince) {
+	public void setMemberSince(LocalDate memberSince) {
 		this.memberSince = memberSince;
 	}
 	public String getLinkedInURL() {
@@ -85,6 +92,12 @@ public class ProfileResponse {
 	}
 	public void setPortfolio(String portfolio) {
 		this.portfolio = portfolio;
+	}
+	public Set<AvailabilitySlotDto> getAvailability() {
+		return availability;
+	}
+	public void setAvailability(Set<AvailabilitySlotDto> availability) {
+		this.availability = availability;
 	}
 	
 	

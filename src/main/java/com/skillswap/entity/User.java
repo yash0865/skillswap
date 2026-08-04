@@ -1,15 +1,20 @@
 package com.skillswap.entity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.skillswap.utils.SessionMode;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,54 +26,95 @@ import jakarta.validation.constraints.Email;
 @Entity
 @Table(name = "users")
 public class User {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@Column
-	private String name;
-	
-	@Column
-	private String location;
-	
-	@Column
-	@Email
-	private String email;
-	
-	@Column
-	private String password;
-	
-	@Column
-	private String bio;
-	
-	@Column
-	private Date joinedDate;
-	
-	@Column
-	private String linkedInURL;
-	
-	@Column
-	private String portfolio;
-	
-	@Column
-	private String photoURL;
-	
-	@Column
-	private String occupation;
-	
-	@OneToMany()
-	@JoinColumn(name = "user_id")
-	private List<AvailabilitySlot> availableSlots = new ArrayList<>();
-	
-	@Enumerated(EnumType.STRING)
-	private SessionMode sessionMode;
-	
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column
+    private String occupation;
+
+    @Column
+    private String location;
+
+    @Email
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(length = 1000)
+    private String bio;
+
+    @Column(nullable = false)
+    private LocalDate joinedDate = LocalDate.now();
+
+    @Column
+    private String linkedinUrl;
+
+    @Column
+    private String portfolio;
+
+    @Column
+    private String photoUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SessionMode sessionMode;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<AvailabilitySlot> availabilitySlots = new HashSet<>();
+
+    // getters setters
+
+    public void addAvailabilitySlot(AvailabilitySlot slot){
+        slot.setUser(this);
+        availabilitySlots.add(slot);
+    }
+
+    public void removeAvailabilitySlot(AvailabilitySlot slot){
+        availabilitySlots.remove(slot);
+        slot.setUser(null);
+    }
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getOccupation() {
+		return occupation;
+	}
+
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public String getEmail() {
@@ -95,36 +141,20 @@ public class User {
 		this.bio = bio;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public Date getJoinedDate() {
+	public LocalDate getJoinedDate() {
 		return joinedDate;
 	}
 
-	public void setJoinedDate(Date joinedDate) {
+	public void setJoinedDate(LocalDate joinedDate) {
 		this.joinedDate = joinedDate;
 	}
 
-	public String getLinkedInURL() {
-		return linkedInURL;
+	public String getLinkedinUrl() {
+		return linkedinUrl;
 	}
 
-	public void setLinkedInURL(String linkedInURL) {
-		this.linkedInURL = linkedInURL;
+	public void setLinkedinUrl(String linkedinUrl) {
+		this.linkedinUrl = linkedinUrl;
 	}
 
 	public String getPortfolio() {
@@ -135,12 +165,12 @@ public class User {
 		this.portfolio = portfolio;
 	}
 
-	public List<AvailabilitySlot> getAvailableSlots() {
-		return availableSlots;
+	public String getPhotoUrl() {
+		return photoUrl;
 	}
 
-	public void setAvailableSlots(List<AvailabilitySlot> availableSlots) {
-		this.availableSlots = availableSlots;
+	public void setPhotoUrl(String photoUrl) {
+		this.photoUrl = photoUrl;
 	}
 
 	public SessionMode getSessionMode() {
@@ -151,21 +181,11 @@ public class User {
 		this.sessionMode = sessionMode;
 	}
 
-	public String getOccupation() {
-		return occupation;
+	public Set<AvailabilitySlot> getAvailabilitySlots() {
+		return availabilitySlots;
 	}
 
-	public String getPhotoURL() {
-		return photoURL;
+	public void setAvailabilitySlots(Set<AvailabilitySlot> availabilitySlots) {
+		this.availabilitySlots = availabilitySlots;
 	}
-
-	public void setPhotoURL(String photoURL) {
-		this.photoURL = photoURL;
-	}
-
-	public void setOccupation(String occupation) {
-		this.occupation = occupation;
-	}
-	
-	
 }
